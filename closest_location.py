@@ -1,5 +1,3 @@
-from ruamel.yaml import YAML
-import pathlib
 from math import cos, asin, sqrt
 
 def distance(lat1: float, lon1: float, lat2: float, lon2: float):
@@ -7,10 +5,8 @@ def distance(lat1: float, lon1: float, lat2: float, lon2: float):
     hav = 0.5 - cos((lat2-lat1)*p)/2 + cos(lat1*p)*cos(lat2*p) * (1-cos((lon2-lon1)*p)) / 2
     return 12742 * asin(sqrt(hav))
 
-def closest_destination(destinations, objectstore_loc_path, selected_object_store):
-    yaml=YAML(typ='safe')
-    objectstore_file = pathlib.Path(objectstore_loc_path)
-    objectstore = yaml.load(objectstore_file)[selected_object_store]
+def closest_destination(destinations, objectstores, selected_object_store):
+    objectstore = objectstores[selected_object_store]
     min_dist = 999999.99
     for dest in destinations:
         d_lat = dest['context']['latitude']
