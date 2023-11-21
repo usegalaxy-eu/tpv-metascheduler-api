@@ -2,7 +2,7 @@
 
 Metascheduler for TPV as Service
 
-1. create a venv
+1. Create a venv
 
    ```python
    
@@ -112,8 +112,11 @@ Metascheduler for TPV as Service
       ```
 
    2. curl
+
       The Swagger UI can give you a curl version of your request after executing
-   3. using a python script with the requests or httpx library
+
+   3. Using a python script with the requests or httpx library
+
       There is an example of how to do this with TPV:
       `tpv-metascheduler-api/example_tpv_config_locations_api.yml`
       This config can be set up with a galaxy instance or by cloning the TPV repo (the example currently depends on an open PR to this repo)
