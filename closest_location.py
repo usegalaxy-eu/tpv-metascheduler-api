@@ -13,12 +13,12 @@ def closest_destination(destinations, objectstore_loc_path, selected_object_stor
     objectstore = yaml.load(objectstore_file)[selected_object_store]
     min_dist = 999999.99
     for dest in destinations:
-        d_lat = dest.context['latitude']
-        d_lon = dest.context['longitude']
+        d_lat = dest['context']['latitude']
+        d_lon = dest['context']['longitude']
         o_lat = objectstore['latitude']
         o_lon = objectstore['longitude']
         dist = distance(o_lat, o_lon, d_lat, d_lon)
         if dist < min_dist:
             min_dist = dist
             closest_dest = dest
-    return [closest_dest]
+    return closest_dest
