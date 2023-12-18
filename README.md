@@ -132,7 +132,7 @@ Metascheduler for TPV as Service
       # Create a venv for testing
       python -m venv .venv
       source .venv/bin/activate
-      pip install -r test_requirements.txt
+      pip install -r requirements_test.txt
       # Run pytest for the api
       pytest -rPv  tests/test_scenarios_locations.py::TestScenarios::test_scenario_esg_group_user_api
       ```
