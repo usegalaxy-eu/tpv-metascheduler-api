@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict
-from closest_location import closest_destination
+from closest_location import closest_destinations
 
 
 app = FastAPI()
@@ -14,14 +14,14 @@ class DestinationRequest(BaseModel):
 
 
 class ProcessedResult(BaseModel):
-    selected_destination_id: str
+    sorted_destinations: List
 
 
 @app.post("/process_destinations", response_model=ProcessedResult)
 async def process_destinations(data: DestinationRequest):
 
-    final_destination = closest_destination(data.destinations, data.objectstores, data.selected_objectstore)
+    sorted_destinations = closest_destinations(data.destinations, data.objectstores, data.selected_objectstore)
 
     return {
-        "selected_destination_id": final_destination["id"]
+        "sorted_destinations": sorted_destinations
     }
