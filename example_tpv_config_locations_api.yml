@@ -20,14 +20,14 @@ tools:
       import pathlib
       from ruamel.yaml import YAML
 
-      # NOTE: currently object store info is stored in a yaml 
+      # NOTE: currently object store info is stored in a yaml
       objectstore_loc_path = "tests/fixtures/object_store_locations.yml"
-      selected_object_store = "object_store_australia"
+      dataset_attributes = helpers.get_dataset_attributes(job.input_datasets)
 
       yaml=YAML(typ='safe')
       objectstore_file = pathlib.Path(objectstore_loc_path)
       objectstore_dict = yaml.load(objectstore_file)
-      
+
       # Define the URL of your FastAPI application
       api_url = "http://localhost:8000/process_destinations"
 
@@ -36,7 +36,7 @@ tools:
       input_data = {
         "destinations": candidate_destinations_list,
         "objectstores": objectstore_dict,
-        "selected_objectstore": selected_object_store
+        "dataset_attributes": dataset_attributes
       }
 
       # Send a POST request to the API endpoint
@@ -62,7 +62,6 @@ tools:
       accept:
       reject:
         - offline
-
 
 roles:
   ga_admins:

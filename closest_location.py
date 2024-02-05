@@ -7,20 +7,57 @@ def distance(lat1: float, lon1: float, lat2: float, lon2: float):
     return 12742 * asin(sqrt(hav))
 
 
-def closest_destinations(destinations, objectstores, selected_object_store):
-    objectstore = objectstores[selected_object_store]
-    out_destinations = []
-    for dest in destinations:
-        d_lat = dest['context']['latitude']
-        d_lon = dest['context']['longitude']
-        o_lat = objectstore['latitude']
-        o_lon = objectstore['longitude']
-        out_dest = {}
-        out_dest["id"] = dest["id"]
-        out_dest["distance"] = distance(o_lat, o_lon, d_lat, d_lon)
-        out_destinations.append(out_dest)
+def get_object_store(dataset_attributes):
+    """Extract the object store id from the dataset attributes"""
+    object_store = []
+    for value in dataset_attributes.values():
+        if value["object_store_id"]:
+            object_store.append(value["object_store_id"])
 
-    sorted_destinations = sorted(out_destinations, key=lambda d: d['distance'])
-    sorted_destinations = [k["id"] for k in sorted_destinations]
+    if len(set(object_store)) == 1:
+        object_store = [object_store[0]]
 
-    return sorted_destinations
+    return object_store
+
+
+def closest_destinations(destinations, objectstores, dataset_attributes):
+    """Calculate the closest destination for each object store and return
+    the list of destinations sorted by distance"""
+    object_store = get_object_store(dataset_attributes)
+
+    if len(object_store) == 0:
+        # Return all destination IDs if no object store is in the dataset
+        return [destination['id'] for destination in destinations]
+    elif len(object_store) == 1:
+        objectstore = objectstores[object_store[0]]
+        out_destinations = []
+
+        for destination in destinations:
+            d_lat, d_lon = destination['context']['latitude'], destination['context']['longitude']
+            o_lat, o_lon = objectstore['latitude'], objectstore['longitude']
+            out_dest = {"id": destination["id"], "distance": distance(o_lat, o_lon, d_lat, d_lon)}
+            out_destinations.append(out_dest)
+
+        sorted_destinations = sorted(out_destinations, key=lambda d: d['distance'])
+        sorted_destinations = [k["id"] for k in sorted_destinations]
+
+        return sorted_destinations
+    else:
+        # Calculate the minimum distance for each destination
+        candidate_destinations = []
+
+        for _, store_info in objectstores.items():
+            o_lat, o_lon = store_info['latitude'], store_info['longitude']
+            min_distance = float('inf')  # Initialize with infinity for comparison
+            min_distance_dest = None
+
+            for destination in destinations:
+                d_lat, d_lon = destination['context']['latitude'], destination['context']['longitude']
+                dist = distance(o_lat, o_lon, d_lat, d_lon)
+                if dist < min_distance:
+                    min_distance = dist
+                    min_distance_dest = destination['id']
+
+            candidate_destinations.append(min_distance_dest)
+
+        return candidate_destinations

@@ -10,7 +10,7 @@ app = FastAPI()
 class DestinationRequest(BaseModel):
     destinations: List[dict]
     objectstores: Dict[str, dict]
-    selected_objectstore: str
+    dataset_attributes: Dict
 
 
 class ProcessedResult(BaseModel):
@@ -20,7 +20,7 @@ class ProcessedResult(BaseModel):
 @app.post("/process_destinations", response_model=ProcessedResult)
 async def process_destinations(data: DestinationRequest):
 
-    sorted_destinations = closest_destinations(data.destinations, data.objectstores, data.selected_objectstore)
+    sorted_destinations = closest_destinations(data.destinations, data.objectstores, data.dataset_attributes)
 
     return {
         "sorted_destinations": sorted_destinations

@@ -5,7 +5,7 @@ Metascheduler for TPV as Service
 1. Create a venv
 
    ```python
-   
+
    python -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
@@ -52,8 +52,8 @@ Metascheduler for TPV as Service
                "reject": []
                },
                "inherits": null,
-               "context": { 
-                  "latitude": 50.0689816, 
+               "context": {
+                  "latitude": 50.0689816,
                   "longitude": 19.9070188 },
                "rules": {},
                "tags": null
@@ -88,8 +88,8 @@ Metascheduler for TPV as Service
                "reject": []
                },
                "inherits": null,
-               "context": { 
-                  "latitude": 51.9189046, 
+               "context": {
+                  "latitude": 51.9189046,
                   "longitude": 19.1343786 },
                "rules": {},
                "tags": null
@@ -107,7 +107,16 @@ Metascheduler for TPV as Service
                "other_stuff_that_we_find_useful": "foobar"
             }
          },
-         "selected_objectstore": "object_store_poland"
+         "dataset_attributes": {
+            "dataset_italy": {
+               "object_store_id": "object_store_italy_S3_01",
+               "size": 12345678
+            },
+            "dataset_poland": {
+               "object_store_id": "object_store_poland",
+               "size": 123456789
+            }
+         }
       }
       ```
 
