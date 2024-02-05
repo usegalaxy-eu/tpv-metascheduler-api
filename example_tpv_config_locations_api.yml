@@ -22,7 +22,7 @@ tools:
 
       # NOTE: currently object store info is stored in a yaml
       objectstore_loc_path = "tests/fixtures/object_store_locations.yml"
-      dataset_attributes = helpers.get_dataset_attributes(job.get_input_datasets())
+      dataset_attributes = helpers.get_dataset_attributes(job.input_datasets)
 
       yaml=YAML(typ='safe')
       objectstore_file = pathlib.Path(objectstore_loc_path)
