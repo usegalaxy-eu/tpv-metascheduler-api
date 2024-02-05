@@ -15,7 +15,7 @@ tools:
           offline
     rules: []
     rank: |
-      import httpx
+      import requests
       import json
       import pathlib
       from ruamel.yaml import YAML
@@ -40,7 +40,7 @@ tools:
       }
 
       # Send a POST request to the API endpoint
-      response = httpx.post(api_url, json=input_data)
+      response = requests.post(api_url, json=input_data)
 
       # Check if the request was successful (status code 200)
       if response.status_code == 200:
