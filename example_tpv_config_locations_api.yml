@@ -31,7 +31,7 @@ tools:
       # Define the URL of your FastAPI application
       api_url = "http://localhost:8000/process_destinations"
 
-      candidate_destinations_list = [dest.to_dict() for dest in candidate_destinations]
+      candidate_destinations_list = [{"id": dest.id, "context": dest.context} for dest in candidate_destinations]
 
       input_data = {
         "destinations": candidate_destinations_list,
