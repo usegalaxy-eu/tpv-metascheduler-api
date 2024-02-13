@@ -19,6 +19,7 @@ tools:
       import json
       import pathlib
       from ruamel.yaml import YAML
+      from galaxy import model
 
       # NOTE: currently object store info is stored in a yaml
       objectstore_loc_path = "tests/fixtures/object_store_locations.yml"
@@ -31,7 +32,13 @@ tools:
       # Define the URL of your FastAPI application
       api_url = "http://localhost:8000/process_destinations"
 
-      candidate_destinations_list = [{"id": dest.id, "context": dest.context} for dest in candidate_destinations]
+      # Format the destination data and identify the total number of queued jobs for each destination
+      candidate_destinations_list = []
+      for dest in candidate_destinations:
+        dest_dict = dest.to_dict()
+        dest_dict["queued_job_count"] = app.model.context.query(model.Job).filter(model.Job.state == "queued", model.Job.destination_id == dest.dest_name).count()
+        candidate_destinations_list.append(dest_dict)
+
 
       input_data = {
         "destinations": candidate_destinations_list,
