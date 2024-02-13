@@ -56,7 +56,8 @@ Metascheduler for TPV as Service
                   "latitude": 50.0689816,
                   "longitude": 19.9070188 },
                "rules": {},
-               "tags": null
+               "tags": null,
+               "queued_job_count": 10
             },
             {
                "id": "slurm_poland",
@@ -92,7 +93,8 @@ Metascheduler for TPV as Service
                   "latitude": 51.9189046,
                   "longitude": 19.1343786 },
                "rules": {},
-               "tags": null
+               "tags": null,
+               "queued_job_count": 8
             }
          ],
          "objectstores": {
