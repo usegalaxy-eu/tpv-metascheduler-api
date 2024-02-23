@@ -35,10 +35,13 @@ def closest_destinations(destinations, objectstores, dataset_attributes):
         for destination in destinations:
             d_lat, d_lon = destination['context']['latitude'], destination['context']['longitude']
             o_lat, o_lon = objectstore['latitude'], objectstore['longitude']
-            out_dest = {"id": destination["id"], "distance": distance(o_lat, o_lon, d_lat, d_lon)}
+            queue_size = destination['queued_job_count']
+            out_dest = {"id": destination["id"], "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
             out_destinations.append(out_dest)
 
-        sorted_destinations = sorted(out_destinations, key=lambda d: d['distance'])
+        # In this simple logic: give equal sorting weight to both the distance and the queue size 
+        sorted_destinations = sorted(out_destinations, key=lambda d: (d['distance'], d['queue']))
+        
         sorted_destinations = [k["id"] for k in sorted_destinations]
 
         return sorted_destinations
@@ -56,8 +59,12 @@ def closest_destinations(destinations, objectstores, dataset_attributes):
                 dist = distance(o_lat, o_lon, d_lat, d_lon)
                 if dist < min_distance:
                     min_distance = dist
-                    min_distance_dest = destination['id']
+                    # min_distance_dest = destination['id']
 
-            candidate_destinations.append(min_distance_dest)
+            # candidate_destinations.append(min_distance_dest)
+            candidate_destinations.append(destination)
 
-        return candidate_destinations
+        sorted_candidate_destinations = sorted(candidate_destinations, key=lambda q: q['queued_job_count'])
+        sorted_candidate_destination_ids = [dest['id'] for dest in sorted_candidate_destinations]
+        
+        return sorted_candidate_destination_ids
