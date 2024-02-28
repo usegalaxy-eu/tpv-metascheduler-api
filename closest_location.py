@@ -29,6 +29,7 @@ def closest_destinations(destinations, objectstores, dataset_attributes):
         # Return all destination IDs if no object store is in the dataset
         return [destination['id'] for destination in destinations]
     elif len(object_store) == 1:
+        # Calculate the minimum distance for each destination
         objectstore = objectstores[object_store[0]]
         out_destinations = []
 
@@ -46,25 +47,23 @@ def closest_destinations(destinations, objectstores, dataset_attributes):
 
         return sorted_destinations
     else:
-        # Calculate the minimum distance for each destination
-        candidate_destinations = []
+        # Calculate the minimum distance for each destination and for each objectstore
+        # TODO: currently not considering multiple objectstores for the optimal destination
+        out_destinations = []
 
         for _, store_info in objectstores.items():
             o_lat, o_lon = store_info['latitude'], store_info['longitude']
-            min_distance = float('inf')  # Initialize with infinity for comparison
-            min_distance_dest = None
 
             for destination in destinations:
                 d_lat, d_lon = destination['context']['latitude'], destination['context']['longitude']
-                dist = distance(o_lat, o_lon, d_lat, d_lon)
-                if dist < min_distance:
-                    min_distance = dist
-                    # min_distance_dest = destination['id']
+                queue_size = destination['queued_job_count']
+                out_dest = {"id": destination["id"], "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
+                out_destinations.append(out_dest)
 
-            # candidate_destinations.append(min_distance_dest)
-            candidate_destinations.append(destination)
 
-        sorted_candidate_destinations = sorted(candidate_destinations, key=lambda q: q['queued_job_count'])
-        sorted_candidate_destination_ids = [dest['id'] for dest in sorted_candidate_destinations]
+        # In this simple logic: give equal sorting weight to both the distance and the queue size 
+        sorted_destinations = sorted(out_destinations, key=lambda d: (d['distance'], d['queue']))
         
-        return sorted_candidate_destination_ids
+        sorted_destinations = [k["id"] for k in sorted_destinations]
+        
+        return sorted_destinations
