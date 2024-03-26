@@ -66,7 +66,7 @@ tools:
       filter_after = datetime.now() - timedelta(days=30*365/12)
 
       subquery_job = select(
-            model.Job.id, model.Job.destination_id
+            model.Job.id, model.Job.destination_id, model.Job.tool_id
         ).where(
             func.lower(model.Job.destination_id).like(func.lower('%pulsar%')),
             model.Job.create_time > filter_after
@@ -92,6 +92,7 @@ tools:
 
       final_query = select(
         subquery_job.c.destination_id,
+        subquery_job.c.tool_id,
         func.count(subquery_job.c.id),
         func.avg(subquery_destination.c.queue_time).label('avg_queue_time'),
         func.min(subquery_destination.c.queue_time).label('min_queue_time'),
@@ -111,7 +112,7 @@ tools:
         subquery_job,
         subquery_destination.c.job_id == subquery_job.c.id
       ).group_by(
-        subquery_job.c.destination_id
+        subquery_job.c.destination_id, subquery_job.c.tool_id
       ).order_by(
         subquery_job.c.destination_id
       )
