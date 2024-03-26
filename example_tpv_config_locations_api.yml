@@ -63,12 +63,12 @@ tools:
             model.JobStateHistory.job_id
         ).alias('subquery_finished')
 
-      filter_after = datetime.now() - timedelta(days=30*365/12)
+      filter_after = datetime.now() - timedelta(days=30)
 
       subquery_job = select(
             model.Job.id, model.Job.destination_id, model.Job.tool_id
         ).where(
-            func.lower(model.Job.destination_id).like(func.lower('%pulsar%')),
+            func.lower(model.Job.tool_id).like(func.lower(job.tool_id)),
             model.Job.create_time > filter_after
         ).alias('subquery_job')
 
@@ -127,7 +127,7 @@ tools:
           for row in results:
               if dest.dest_name in row:
                   row_dict = dict(row)
-                  for key, value in d.items():
+                  for key, value in row_dict.items():
                     if isinstance(value, timedelta):
                         dest_dict[key] = value.total_seconds()
                     else:
