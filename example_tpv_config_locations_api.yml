@@ -26,115 +26,62 @@ tools:
       sa_session = app.model.context
 
       # NOTE: currently object store info is stored in a yaml
-      objectstore_loc_path = "tests/fixtures/object_store_locations.yml"
+      objectstore_loc_path = "{{ tpv_config_dir }}/object_store_locations.yml"
       dataset_attributes = helpers.get_dataset_attributes(job.input_datasets)
 
       yaml=YAML(typ='safe')
       objectstore_file = pathlib.Path(objectstore_loc_path)
       objectstore_dict = yaml.load(objectstore_file)
 
+      # URL of local influxDB
+      influx_url = "http://127.0.0.1:8086/query"
       # URL of the FastAPI application
       api_url = "http://localhost:8000/process_destinations"
+      queries = [
+          "SELECT * FROM \"destination-queue-run-time\"  WHERE time > now() - 30m",
+          "SELECT * FROM \"cluster.queue\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' LIMIT 6;",
+          "SELECT * FROM \"cluster.alloc\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' LIMIT 10;",
+      ]
 
-      subquery_queued = select(
-            model.JobStateHistory.job_id,
-            func.min(model.JobStateHistory.create_time).label('create_time')
-        ).where(
-            model.JobStateHistory.state == 'queued'
-        ).group_by(
-            model.JobStateHistory.job_id
-        ).alias('subquery_queued')
+      params = {
+         "db": "telegraf",
+         "q": ";".join(queries)
+      }
+      response = requests.get(influx_url, params=params)
+      results = response.json()
 
-      subquery_running = select(
-            model.JobStateHistory.job_id,
-            func.min(model.JobStateHistory.create_time).label('create_time')
-        ).where(
-            model.JobStateHistory.state == 'running'
-        ).group_by(
-            model.JobStateHistory.job_id
-        ).alias('subquery_running')
+      columns = results['results'][0]['series'][0]['columns']
+      stat_columns = ['destination_id', 'tool_id', 'time', 'count', 'median_queue', 'median_run']
+      stat_indices = [columns.index(c) for c in stat_columns]
+      #stat_indices = [i for i,l in enumerate(columns) if l in stat_columns]
+      series = results['results'][0]['series'][0]['values']
 
-      subquery_finished = select(
-            model.JobStateHistory.job_id,
-            func.min(model.JobStateHistory.create_time).label('create_time')
-        ).where(
-            model.JobStateHistory.state == 'ok'
-        ).group_by(
-            model.JobStateHistory.job_id
-        ).alias('subquery_finished')
-
-      filter_after = datetime.now() - timedelta(days=30)
-
-      subquery_job = select(
-            model.Job.id, model.Job.destination_id, model.Job.tool_id
-        ).where(
-            func.lower(model.Job.tool_id).like(func.lower(job.tool_id)),
-            model.Job.create_time > filter_after
-        ).alias('subquery_job')
-
-      subquery_destination = select(
-          subquery_queued.c.job_id,
-          subquery_queued.c.create_time.label('queued_time'),
-          subquery_running.c.create_time.label('running_time'),
-          subquery_finished.c.create_time.label('finished_time'),
-          (subquery_running.c.create_time - subquery_queued.c.create_time).label('queue_time'),
-          (subquery_finished.c.create_time - subquery_running.c.create_time).label('run_time')
-      ).select_from(
-          subquery_queued.join(
-              subquery_running,
-              subquery_queued.c.job_id == subquery_running.c.job_id
-            ).join(
-              subquery_finished,
-              subquery_queued.c.job_id == subquery_finished.c.job_id,
-              isouter=True
-            )
-      )
-
-      final_query = select(
-        subquery_job.c.destination_id,
-        subquery_job.c.tool_id,
-        func.count(subquery_job.c.id),
-        func.avg(subquery_destination.c.queue_time).label('avg_queue_time'),
-        func.min(subquery_destination.c.queue_time).label('min_queue_time'),
-        func.percentile_cont(0.50).within_group(subquery_destination.c.queue_time.asc()).label('median_queue_time'),
-        func.percentile_cont(0.95).within_group(subquery_destination.c.queue_time.asc()).label('perc_95_queue_time'),
-        func.percentile_cont(0.99).within_group(subquery_destination.c.queue_time.asc()).label('perc_99_queue_time'),
-        func.max(subquery_destination.c.queue_time).label('max_queue_time'),
-        func.avg(subquery_destination.c.run_time).label('avg_run_time'),
-        func.min(subquery_destination.c.run_time).label('min_run_time'),
-        func.percentile_cont(0.50).within_group(subquery_destination.c.run_time.asc()).label('median_run_time'),
-        func.percentile_cont(0.95).within_group(subquery_destination.c.run_time.asc()).label('perc_95_run_time'),
-        func.percentile_cont(0.99).within_group(subquery_destination.c.run_time.asc()).label('perc_99_run_time'),
-        func.max(subquery_destination.c.run_time).label('max_run_time')
-      ).select_from(
-        subquery_destination
-      ).join(
-        subquery_job,
-        subquery_destination.c.job_id == subquery_job.c.id
-      ).group_by(
-        subquery_job.c.destination_id, subquery_job.c.tool_id
-      ).order_by(
-        subquery_job.c.destination_id
-      )
-
-      results = sa_session.execute(final_query).all()
+      #condor_status = [zip(results['results'][1]['series'][0]['columns'], row) for row in results['results'][1]['series'][0]['values'])]
 
       # Format the destination data and identify the total number of queued jobs for each destination
       candidate_destinations_list = []
       for dest in candidate_destinations:
           dest_dict = dest.to_dict()
           dest_dict["queued_job_count"] = app.model.context.query(model.Job).filter(model.Job.state == "queued", model.Job.destination_id == dest.dest_name).count()
-          for row in results:
-              if dest.dest_name in row:
-                  row_dict = dict(row)
-                  for key, value in row_dict.items():
-                    if isinstance(value, timedelta):
-                        dest_dict[key] = value.total_seconds()
-                    else:
-                        dest_dict[key] = value
+
+          for row in series:
+              stats = [row[i] for i in stat_indices]
+              if stats[0] == dest.dest_name and stats[1] == job.tool_id:
+                  dest_dict.update(zip(stat_columns,stats))
+                  dest_dict["galaxy_db_query_time"] = dest_dict.pop("time")
+                  dest_dict["job_count_in_time_window"] = dest_dict.pop("count")
+                  dest_dict["median_queue_time"] = dest_dict.pop("median_queue")
+                  dest_dict["median_run_time"] = dest_dict.pop("median_run")
+                  break
+          
+          for row in results['results'][1]['series'][0]['values']:
+              dest_dict[row[-1]+"_count"] = row[1]
+
+          for row in results['results'][2]['series'][0]['values']:
+              dest_dict["cpu_usage_perc"] = row[2]
+              dest_dict["mem_usage_perc"] = row[-1]
 
           candidate_destinations_list.append(dest_dict)
-
 
       input_data = {
         "destinations": candidate_destinations_list,
