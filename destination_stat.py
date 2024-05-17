@@ -13,26 +13,43 @@ def fetch_influx_data(url, queries, db="telegraf"):
 def parse_series(series):
     columns = series['columns']
     values = series['values']
-    return columns, values
+    parsed_series = [dict(zip(columns, value)) for value in values]
+    return parsed_series
+
+
+def process_queue_state(results):
+    timing_series = results['results'][0]['series'][0]
+    timing_data = parse_series(timing_series)
+    return timing_data
+
+
+def median_queue_state(data):
+    data
+
+
+def process_median_queue_state(results):
+    timing_series = results['results'][1]['series'][0]
+    timing_data = parse_series(timing_series)
+    return timing_data
+
 
 def process_timing_series(results):
-    timing_series = results['results'][0]['series'][0]
-    columns, values = parse_series(timing_series)
-    timing_data = [dict(zip(columns, value)) for value in values]
+    timing_series = results['results'][2]['series'][0]
+    timing_data = parse_series(timing_series)
     return timing_data
 
 
 def process_queue_series(results):
-    queue_series = results['results'][1]['series'][0]
-    columns, values = parse_series(queue_series)
-    queue_data = [dict(zip(columns, value)) for value in values]
+    queue_series = results['results'][3]['series'][0]
+    queue_data = parse_series(queue_series)
     return queue_data
 
+
 def process_alloc_series(results):
-    alloc_series = results['results'][2]['series'][0]
-    columns, values = parse_series(alloc_series)
-    alloc_data = [dict(zip(columns, value)) for value in values]
+    alloc_series = results['results'][4]['series'][0]
+    alloc_data = parse_series(alloc_series)
     return alloc_data
+
 
 def process_candidate_destinations(candidate_destinations, queue_data, alloc_data, series, stat_indices, stat_columns):
     candidate_destinations_list = []
@@ -64,14 +81,18 @@ def process_candidate_destinations(candidate_destinations, queue_data, alloc_dat
 def destination_statistics(influx_url, queries):
 
     results = fetch_influx_data(influx_url, queries)
-    print(results)
+    # print(results)
+    queue_state_data = process_queue_state(results)
+    median_queue_state_data1 = median_queue_state(queue_state_data)
+    median_queue_state_data = process_median_queue_state(results)
     timing_data = process_timing_series(results)
     queue_data = process_queue_series(results)
     alloc_data = process_alloc_series(results)
     # candidate_destinations_list = process_candidate_destinations(candidate_destinations, queue_data, alloc_data, series, stat_indices, stat_columns)
+    print(queue_state_data)
 
-    print(timing_data)
-    print(queue_data)
-    print(alloc_data)
+
+    # print(queue_data)
+    # print(alloc_data)
     # series, stat_indices = extract_statistics(results, stat_columns)
     # candidate_destinations_list = process_candidate_destinations(candidate_destinations, series, stat_indices, stat_columns, results)

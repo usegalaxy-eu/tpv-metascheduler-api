@@ -133,7 +133,9 @@ async def process_data(data: RequestModel):
 # Usage example
 influx_url = "https://test.usegalaxy.be/influx/query"
 queries = [
-    "SELECT * FROM \"destination-queue-run-time\" LIMIT 10",
+    "SELECT * FROM queue_by_destination LIMIT 10;",
+    "SELECT median(count) FROM queue_by_destination GROUP BY \"destination_id\", state LIMIT 10;",
+    "SELECT \"tool_id\", \"destination_id\", count, \"median_queue\", \"median_run\" FROM \"destination-queue-run-time\" LIMIT 10",
     "SELECT * FROM \"cluster.queue\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' LIMIT 6;",
     "SELECT * FROM \"cluster.alloc\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' LIMIT 10;",
 ]
