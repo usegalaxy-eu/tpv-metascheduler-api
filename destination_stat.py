@@ -1,4 +1,32 @@
 import requests
+from collections import defaultdict
+
+
+def calculate_median(values):
+    # Sort the values
+    values.sort()
+    
+    # Calculate the median
+    n = len(values)
+    if n % 2 == 1:
+        median = values[n // 2]
+    else:
+        median = (values[n // 2 - 1] + values[n // 2]) / 2
+    
+    return median
+
+
+def group_and_calculate_medians(data, group_key, value_key):
+    grouped_data = defaultdict(list)
+    
+    # Group the data by the specified group_key
+    for item in data:
+        grouped_data[item[group_key]].append(item[value_key])
+    
+    # Calculate the median for each group
+    medians = {state: calculate_median(counts) for state, counts in grouped_data.items()}
+    
+    return medians
 
 
 def fetch_influx_data(url, queries, db="telegraf"):
@@ -83,13 +111,16 @@ def destination_statistics(influx_url, queries):
     results = fetch_influx_data(influx_url, queries)
     # print(results)
     queue_state_data = process_queue_state(results)
+    # NOTE: we shouldn't get the queue state from the 30min intervals probably?
     median_queue_state_data1 = median_queue_state(queue_state_data)
     median_queue_state_data = process_median_queue_state(results)
     timing_data = process_timing_series(results)
     queue_data = process_queue_series(results)
     alloc_data = process_alloc_series(results)
     # candidate_destinations_list = process_candidate_destinations(candidate_destinations, queue_data, alloc_data, series, stat_indices, stat_columns)
-    print(queue_state_data)
+    print(results['results'][1])
+
+
 
 
     # print(queue_data)
