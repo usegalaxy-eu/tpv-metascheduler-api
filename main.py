@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import List, Dict
 from closest_location import closest_destinations
 from destination_stat import destination_statistics
+from influxdb import InfluxDBClient
 
 app = FastAPI()
 
@@ -130,19 +131,35 @@ async def process_data(data: RequestModel):
     }
 
 
-# Usage example
-influx_url = "https://test.usegalaxy.be/influx/query"
+
+influx_url = "https://test.usegalaxy.be:59886/query"
 queries = [
-    "SELECT * FROM queue_by_destination LIMIT 10;",
-    "SELECT median(count) FROM queue_by_destination GROUP BY \"destination_id\", state LIMIT 10;",
-    "SELECT \"tool_id\", \"destination_id\", count, \"median_queue\", \"median_run\" FROM \"destination-queue-run-time\" LIMIT 10",
-    "SELECT * FROM \"cluster.queue\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' LIMIT 6;",
-    "SELECT * FROM \"cluster.alloc\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' LIMIT 10;",
+    "SELECT * FROM queue_by_destination LIMIT 10",
+    "SELECT median(count) FROM queue_by_destination GROUP BY \"destination_id\", state ORDER BY time DESC LIMIT 10",
+    "SELECT \"tool_id\", \"destination_id\", count, \"median_queue\", \"median_run\" FROM \"destination-queue-run-time\" ORDER BY time DESC LIMIT 10",
+    "SELECT * FROM \"cluster.queue\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' ORDER BY time DESC LIMIT 6",
+    "SELECT * FROM \"cluster.alloc\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' ORDER BY time DESC LIMIT 10",
 ]
-stat_columns = ['destination_id', 'tool_id', 'time', 'count', 'median_queue', 'median_run']
+# Initialize the InfluxDB client
+client = InfluxDBClient(host="test.usegalaxy.be", port=59886, database='telegraf', ssl=True)
 
-destination_statistics(influx_url, queries)
+def parse_results(results):
+    for key, value in results.items():
+        print("TAGS")
+        print(key)
+        print("SERIES")
+        # print(list(value))
+    # parsed_series = [dict(zip(columns, value)) for value in values]
+    # return parsed_series
 
+
+for query in queries:
+    results = client.query(query)
+    # print(len(results.items()))
+    parse_results(results)
+
+
+# destination_statistics(influx_url, queries)
 
 # class DestinationRequest(BaseModel):
 #     destinations: List[dict] = Field(examples=[[{"id":"pulsar_italy",

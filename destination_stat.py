@@ -5,27 +5,27 @@ from collections import defaultdict
 def calculate_median(values):
     # Sort the values
     values.sort()
-    
+
     # Calculate the median
     n = len(values)
     if n % 2 == 1:
         median = values[n // 2]
     else:
         median = (values[n // 2 - 1] + values[n // 2]) / 2
-    
+
     return median
 
 
 def group_and_calculate_medians(data, group_key, value_key):
     grouped_data = defaultdict(list)
-    
+
     # Group the data by the specified group_key
     for item in data:
         grouped_data[item[group_key]].append(item[value_key])
-    
+
     # Calculate the median for each group
     medians = {state: calculate_median(counts) for state, counts in grouped_data.items()}
-    
+
     return medians
 
 
@@ -118,7 +118,7 @@ def destination_statistics(influx_url, queries):
     queue_data = process_queue_series(results)
     alloc_data = process_alloc_series(results)
     # candidate_destinations_list = process_candidate_destinations(candidate_destinations, queue_data, alloc_data, series, stat_indices, stat_columns)
-    print(results['results'][1])
+    print(queue_state_data)
 
 
 
