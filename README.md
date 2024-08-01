@@ -12,7 +12,12 @@ Metascheduler for TPV as Service
    ```
 
 2. Run the API locally:
-   `uvicorn main:app --reload`
+
+   ```shell
+   source set_env.sh
+   uvicorn main:app --reload
+   ```
+
 3. Testing the API with input data:
 
    1. SwaggerUI: <http://127.0.0.1:8000/docs>

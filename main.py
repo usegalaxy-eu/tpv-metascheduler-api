@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Dict
@@ -132,7 +133,6 @@ async def process_data(data: RequestModel):
 
 
 
-influx_url = "https://test.usegalaxy.be:59886/query"
 queries = [
     "SELECT * FROM queue_by_destination LIMIT 10",
     "SELECT median(count) FROM queue_by_destination GROUP BY \"destination_id\", state ORDER BY time DESC LIMIT 10",
@@ -140,15 +140,28 @@ queries = [
     "SELECT * FROM \"cluster.queue\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' ORDER BY time DESC LIMIT 6",
     "SELECT * FROM \"cluster.alloc\" WHERE host = 'vgcn-pulsar-central-manager.usegalaxy.be' ORDER BY time DESC LIMIT 10",
 ]
+# Retrieve the config vars
+address = os.getenv('INFLUXDB_HOST')
+port = os.getenv('INFLUXDB_PORT')
+db = os.getenv('INFLUXDB_DATABASE')
+influxdb_username = os.getenv('INFLUXDB_USERNAME')
+influxdb_password = os.getenv('INFLUXDB_PASSWORD')
+
+# Ensure the variables are set
+if not influxdb_username or not influxdb_password:
+    raise ValueError("InfluxDB credentials are not set in environment variables")
+
 # Initialize the InfluxDB client
-client = InfluxDBClient(host="test.usegalaxy.be", port=59886, database='telegraf', ssl=True)
+client = InfluxDBClient(host=address, port=port, database=db, ssl=True,
+                        username=influxdb_username, password=influxdb_password)
+
 
 def parse_results(results):
     for key, value in results.items():
         print("TAGS")
         print(key)
         print("SERIES")
-        # print(list(value))
+        print(list(value))
     # parsed_series = [dict(zip(columns, value)) for value in values]
     # return parsed_series
 
