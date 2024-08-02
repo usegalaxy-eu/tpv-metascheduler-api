@@ -1,0 +1,78 @@
+# Monitoring
+# TODO: add example outputs here
+telegraf_plugins_extra:
+
+  monitor_galaxy_tool_times:
+    plugin: "exec"
+    config:
+      - commands = ["/usr/bin/monitor-galaxy-tool-times"]
+      - timeout = "10m"
+      - data_format = "influx"
+      - interval = "10m"
+
+  monitor_galaxy_queue:
+    plugin: "exec"
+    config:
+      - commands = [
+          "{{ custom_telegraf_env}} {{ gxadmin_bin_dir }}/gxadmin iquery queue-overview --short-tool-id"
+        ]
+      - timeout = "15s"
+      - data_format = "influx"
+      - interval = "15s"
+      
+  monitor_galaxy_queue_state:
+    plugin: "exec"
+    config:
+      - commands = [
+          "{{ custom_telegraf_env}} {{ gxadmin_bin_dir }}/gxadmin iquery queue --by destination"
+        ]
+      - timeout = "1m"
+      - data_format = "influx"
+      - interval = "1m"
+  
+  monitor_condor_queue:
+    plugin: "exec"
+    config:
+      - commands = ["sudo /usr/bin/monitor-condor-queue"]
+      - timeout = "2m"
+      - data_format = "influx"
+      - interval = "2m"
+
+  monitor_condor_queue_jobs:
+    plugin: "exec"
+    config:
+      - commands = ["sudo /usr/bin/monitor-condor-queue-jobs"]
+      - timeout = "2m"
+      - data_format = "influx"
+      - interval = "2m"
+
+  monitor_condor_util:
+    plugin: "exec"
+    config:
+      - commands = ["sudo /usr/bin/monitor-condor-utilisation"]
+      - timeout = "5m"
+      - data_format = "influx"
+      - interval = "10m"
+
+  # Some custom galaxy monitoring stuff
+  galaxy_jobs_queued:
+    plugin: "exec"
+    config:
+      - commands = ["{{ custom_telegraf_env }} /usr/bin/gxadmin iquery jobs-queued"]
+      - timeout = "15s"
+      - data_format = "influx"
+      - interval = "1m"
+  galaxy_jobs_queued_internal:
+    plugin: "exec"
+    config:
+      - commands = ["{{ custom_telegraf_env }} /usr/bin/gxadmin iquery jobs-queued-internal-by-handler"]
+      - timeout = "15s"
+      - data_format = "influx"
+      - interval = "1m"
+  galaxy_jobs_queue_overview:
+    plugin: "exec"
+    config:
+      - commands = ["{{ custom_telegraf_env }} /usr/bin/gxadmin iquery queue-overview --short-tool-id"]
+      - timeout = "30s"
+      - data_format = "influx"
+      - interval = "1m"

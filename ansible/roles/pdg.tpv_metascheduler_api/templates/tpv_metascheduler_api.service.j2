@@ -1,0 +1,21 @@
+[Unit]
+Description=TPV FastAPI Application
+After=network.target
+
+[Service]
+User={{ tpv_metascheduler_api_systemd_service_user }}
+WorkingDirectory={{ tpv_metascheduler_api_dir }}
+{% if tpv_metascheduler_api_proxy_config.proxy_pass_protocol == 'https' and tpv_metascheduler_api_ssl_certificate_key is defined and tpv_metascheduler_api_ssl_certificate is defined %}
+ExecStart={{ tpv_metascheduler_api_venv_dir }}/bin/uvicorn main:app --reload --host {{ tpv_metascheduler_api_proxy_config.proxy_pass_host }} --port {{ tpv_metascheduler_api_proxy_config.proxy_pass_port }} --root-path {{ tpv_metascheduler_api_proxy_config.location }} --ssl-keyfile {{ tpv_metascheduler_api_ssl_certificate_key }}  --ssl-certfile {{ tpv_metascheduler_api_ssl_certificate }}
+{% else %}
+ExecStart={{ tpv_metascheduler_api_venv_dir }}/bin/uvicorn main:app --reload --host {{ tpv_metascheduler_api_proxy_config.proxy_pass_host }} --port {{ tpv_metascheduler_api_proxy_config.proxy_pass_port }} --root-path {{ tpv_metascheduler_api_proxy_config.location }}
+{% endif %}
+Environment="INFLUX_ADDRESS={{ influx_address }}"
+Environment="INFLUX_PORT={{ influx_port }}"
+Environment="INFLUX_DB={{ influx_db }}"
+Environment="INFLUXDB_USERNAME={{ influx_username }}"
+Environment="INFLUXDB_PASSWORD={{ influx_password }}"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

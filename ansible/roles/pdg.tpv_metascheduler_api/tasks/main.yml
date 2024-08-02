@@ -1,0 +1,68 @@
+---
+- name: Clone TPV metascheduler api repo
+  ansible.builtin.git:
+    repo: "{{ tpv_metascheduler_api_repo }}"
+    dest: "{{ tpv_metascheduler_api_dir }}"
+    version: "{{ tpv_metascheduler_api_commit_id }}"
+    force: "{{ tpv_metascheduler_api_force_checkout | default(false) }}"
+
+- name: Get TPV metascheduler api current commit id
+  ansible.builtin.command: git rev-parse HEAD
+  args:
+    chdir: "{{ tpv_metascheduler_api_dir }}"
+  register: tpv_metascheduler_api_current_commit_id
+
+- name: Add TPV metascheduler api current commit id to a file
+  ansible.builtin.copy:
+    content: "Commit id: {{ tpv_metascheduler_api_current_commit_id.stdout }}"
+    dest: "{{ tpv_metascheduler_api_dir }}/version"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Create a virtualenv and install dependencies
+  ansible.builtin.pip:
+    requirements: "{{ tpv_metascheduler_api_dir }}/requirements.txt"
+    virtualenv: "{{ tpv_metascheduler_api_venv_dir }}"
+    virtualenv_command: "{{ tpv_metascheduler_api_virtualenv_command }}"
+  environment:
+    PYTHONPATH: null
+    VIRTUAL_ENV: "{{ tpv_metascheduler_api_venv_dir }}"
+  become: true
+
+- name: Copy TPV metascheduler api systemd service file
+  ansible.builtin.template:
+    src: tpv_metascheduler_api.service.j2
+    dest: /etc/systemd/system/tpv_metascheduler_api.service
+    owner: root
+    group: root
+    mode: 0644
+  register: tpv_metascheduler_api_service
+
+- name: Copy the cron job Script
+  ansible.builtin.template:
+    src: tpv_metascheduler_api_cron.sh.j2
+    dest: /usr/local/bin/tpv_metascheduler_api_cron.sh
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create a cron job for the root user
+  ansible.builtin.cron:
+    name: "TPV metascheduler api update cron job"
+    minute: 5
+    job: "/usr/local/bin/tpv_metascheduler_api_cron.sh"
+    user: root
+    state: present
+
+- name: Enable and start TPV metascheduler api systemd service
+  ansible.builtin.service:
+    name: tpv_metascheduler_api
+    enabled: true
+    state: started
+    daemon_reload: true
+  when: tpv_metascheduler_api_service.changed
+
+
+
+influxclientconfig.py.j2

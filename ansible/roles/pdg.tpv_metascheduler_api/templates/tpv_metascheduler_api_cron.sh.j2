@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Description: This script is for a cron job that pulls the latest version of the repo
+# https://github.com/usegalaxy-eu/tpv-metascheduler-api.git, if there are any changes,
+# it will restart the tpv metascheduler api systemd service to apply the changes.
+
+GIT_REPO="{{ tpv_metascheduler_api_repo }}"
+
+# Check if the git command exists
+if ! command -v git &> /dev/null
+then
+    echo "git command could not be found on the system. Please install git"
+    exit 1
+fi
+
+# Pull the latest changes if there are any and restart the respective systemd service
+if [ -d "{{ tpv_metascheduler_api_dir }}" ]; then
+    cd "{{ tpv_metascheduler_api_dir }}"
+    git fetch origin
+    LOCAL=$(git rev-parse HEAD)
+    REMOTE=$(git rev-parse @{u})
+
+    if [ $LOCAL != $REMOTE ]; then
+        git pull
+        echo "Commit id: $REMOTE" > "{{ tpv_metascheduler_api_dir }}/version"
+        systemctl restart tpv-metascheduler-api.service
+        echo "$(date) - The tpv metascheduler api systemd service has been restarted"
+    fi
+else
+    echo "The directory {{ tpv_metascheduler_api_dir }} does not exist. Please clone the repo"
+    exit 1
+fi
+
