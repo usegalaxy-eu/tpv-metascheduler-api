@@ -12,7 +12,12 @@ Metascheduler for TPV as Service
    ```
 
 2. Run the API locally:
-   `uvicorn main:app --reload`
+
+   ```shell
+   source set_env.sh
+   uvicorn main:app --reload
+   ```
+
 3. Testing the API with input data:
 
    1. SwaggerUI: <http://127.0.0.1:8000/docs>
@@ -57,7 +62,20 @@ Metascheduler for TPV as Service
                   "longitude": 19.9070188 },
                "rules": {},
                "tags": null,
-               "queued_job_count": 10
+               "queued_job_count": 10,
+               "tool_id": "api_test",
+               "job_count_in_time_window": 30,
+               "galaxy_db_query_time": "2024-04-18T14:20:00Z",
+               "median_queue_time": 1,
+               "median_run_time": 8,
+               "completed_count": 0,
+               "suspended_count": 0,
+               "held_count": 4,
+               "removed_count": 0,
+               "running_count": 0,
+               "idle_count": 0,
+               "cpu_usage_perc": 0,
+               "mem_usage_perc": 0,
             },
             {
                "id": "slurm_poland",
@@ -94,7 +112,20 @@ Metascheduler for TPV as Service
                   "longitude": 19.1343786 },
                "rules": {},
                "tags": null,
-               "queued_job_count": 8
+               "queued_job_count": 8,
+               "tool_id": "api_test",
+               "job_count_in_time_window": 30,
+               "galaxy_db_query_time": "2024-04-18T14:20:00Z",
+               "median_queue_time": 1,
+               "median_run_time": 8,
+               "completed_count": 0,
+               "suspended_count": 0,
+               "held_count": 4,
+               "removed_count": 0,
+               "running_count": 0,
+               "idle_count": 0,
+               "cpu_usage_perc": 0,
+               "mem_usage_perc": 0,
             }
          ],
          "objectstores": {

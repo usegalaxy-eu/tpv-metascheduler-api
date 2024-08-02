@@ -11,8 +11,8 @@ def get_object_store(dataset_attributes):
     """Extract the object store id from the dataset attributes"""
     object_store = []
     for value in dataset_attributes.values():
-        if value["object_store_id"]:
-            object_store.append(value["object_store_id"])
+        if value.object_store_id:
+            object_store.append(value.object_store_id)
 
     if len(set(object_store)) == 1:
         object_store = [object_store[0]]
@@ -27,43 +27,40 @@ def closest_destinations(destinations, objectstores, dataset_attributes):
 
     if len(object_store) == 0:
         # Return all destination IDs if no object store is in the dataset
-        return [destination['id'] for destination in destinations]
+        return [destination.id for destination in destinations]
     elif len(object_store) == 1:
         # Calculate the minimum distance for each destination
         objectstore = objectstores[object_store[0]]
         out_destinations = []
 
         for destination in destinations:
-            d_lat, d_lon = destination['context']['latitude'], destination['context']['longitude']
-            o_lat, o_lon = objectstore['latitude'], objectstore['longitude']
-            queue_size = destination['queued_job_count']
-            out_dest = {"id": destination["id"], "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
+            d_lat, d_lon = destination.latitude, destination.longitude
+            o_lat, o_lon = objectstore.latitude, objectstore.longitude
+            queue_size = destination.queued_job_count
+            out_dest = {"id": destination.id, "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
             out_destinations.append(out_dest)
 
         # In this simple logic: give equal sorting weight to both the distance and the queue size 
-        sorted_destinations = sorted(out_destinations, key=lambda d: (d['distance'], d['queue']))
-        
+        sorted_destinations = sorted(out_destinations, key=lambda d: (d['distance'], d['queue']))       
         sorted_destinations = [k["id"] for k in sorted_destinations]
 
         return sorted_destinations
     else:
         # Calculate the minimum distance for each destination and for each objectstore
-        # TODO: currently not considering multiple objectstores for the optimal destination
         out_destinations = []
 
         for _, store_info in objectstores.items():
-            o_lat, o_lon = store_info['latitude'], store_info['longitude']
+            o_lat, o_lon = store_info.latitude, store_info.longitude
 
             for destination in destinations:
-                d_lat, d_lon = destination['context']['latitude'], destination['context']['longitude']
-                queue_size = destination['queued_job_count']
-                out_dest = {"id": destination["id"], "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
+                d_lat, d_lon = destination.latitude, destination.longitude
+                queue_size = destination.queued_job_count
+                out_dest = {"id": destination.id, "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
                 out_destinations.append(out_dest)
-
 
         # In this simple logic: give equal sorting weight to both the distance and the queue size 
         sorted_destinations = sorted(out_destinations, key=lambda d: (d['distance'], d['queue']))
-        
+
         sorted_destinations = [k["id"] for k in sorted_destinations]
-        
+
         return sorted_destinations
