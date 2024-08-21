@@ -163,9 +163,10 @@ Metascheduler for TPV as Service
    3. Using a python script with the requests or httpx library
 
       There is an example of how to do this with TPV:
-      `tpv-metascheduler-api/example_tpv_config_locations_api.yml`
-      This config can be set up with a galaxy instance or by cloning the TPV repo (the example currently depends on an open PR to this repo)
-      `test/test_scenario_esg_group_user_api` contains a test that has a similar request as above to test out:
+      [example_tpv_config_locations_api.yml](./example_tpv_config_locations_api.yml).
+
+      This config can be set up with a galaxy instance or by cloning the TPV repo
+      (the example currently depends on an [open PR](https://github.com/galaxyproject/total-perspective-vortex/pull/108)):
 
       ```sh
       # Clone the remote repository
