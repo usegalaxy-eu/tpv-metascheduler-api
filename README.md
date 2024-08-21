@@ -13,6 +13,7 @@ Metascheduler for TPV as Service
 
 2. Run the API locally:
 
+   Set correct values for the environment variables to access InfluxDB in `set_env.sh`:
    ```shell
    source set_env.sh
    uvicorn main:app --reload
