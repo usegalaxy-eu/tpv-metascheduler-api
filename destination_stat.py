@@ -68,6 +68,8 @@ def destination_statistics(influx_client, static_data):
         metrics["dest_tool_median_run_time"] = get_influx_results(influx_client, queries['dest_tool_median_run_time_query']) or ""
         metrics["dest_unconsumed_cpu"] = get_influx_results(influx_client, queries['dest_unconsumed_cpu_query']) or ""
         metrics["dest_unconsumed_mem"] = get_influx_results(influx_client, queries['dest_unconsumed_mem_query']) or ""
+        metrics["latitude"] = dest.latitude
+        metrics["longitude"] = dest.longitude
 
         destination_metrics.append(metrics)
 
