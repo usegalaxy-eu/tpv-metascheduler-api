@@ -84,7 +84,7 @@ class RequestModel(BaseModel):
                     "object_store_australia": {"latitude": -26.4390917, "longitude": 133.281323}
                 },
                 "static_dataset_info": {
-                    0: {"object_store_id": "object_store_australia", "size": 1073741824000.0}
+                    "0": {"object_store_id": "object_store_australia", "size": 1073741824000.0}
                 },
                 "static_job_info": {"tool_id": "trinity", "mem": 8, "cores": 2, "gpus": 0},
                 "current_dest_info": [
