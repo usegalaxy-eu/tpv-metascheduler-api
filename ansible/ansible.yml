@@ -1,0 +1,19 @@
+---
+- hosts: 
+  roles:
+
+      # Fastapi that collects stats about Pulsar nodes
+
+      - role: pdg.tpv_metascheduler_api
+
+      # Condor monitoring scripts to be ran using telegraf (can be set up on Pulsar nodes)
+
+      - role: hxr.monitor-cluster
+
+      # Telegraf
+
+      - role: dj-wasabi.telegraf
+
+
+
+    
