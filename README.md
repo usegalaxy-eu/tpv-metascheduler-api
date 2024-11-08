@@ -27,130 +27,142 @@ Metascheduler for TPV as Service
 
       ```json
       {
-         "destinations": [
-            {
-               "id": "pulsar_italy",
-               "abstract": false,
-               "runner": "general_pulsar_1",
-               "destination_name_override": "pulsar_italy",
-               "cores": null,
-               "mem": null,
-               "gpus": null,
-               "min_cores": null,
-               "min_mem": null,
-               "min_gpus": null,
-               "max_cores": null,
-               "max_mem": null,
-               "max_gpus": null,
-               "min_accepted_cores": null,
-               "min_accepted_mem": null,
-               "min_accepted_gpus": null,
-               "max_accepted_cores": 8,
-               "max_accepted_mem": 32,
-               "max_accepted_gpus": null,
-               "env": null,
-               "params": null,
-               "resubmit": null,
-               "scheduling": {
-               "require": ["pulsar"],
-               "prefer": [],
-               "accept": ["general"],
-               "reject": []
-               },
-               "inherits": null,
-               "context": {
+          "static_job_info": {
+              "tool_id": "trinity",
+              "mem": 8,
+              "cores": 2,
+              "gpus": 0
+          },
+          "current_dest_info": [
+              {
+                  "id": "pulsar_italy",
+                  "abstract": false,
+                  "runner": "general_pulsar_1",
+                  "destination_name_override": "pulsar_italy",
+                  "cores": null,
+                  "mem": null,
+                  "gpus": null,
+                  "min_cores": null,
+                  "min_mem": null,
+                  "min_gpus": null,
+                  "max_cores": null,
+                  "max_mem": null,
+                  "max_gpus": null,
+                  "min_accepted_cores": null,
+                  "min_accepted_mem": null,
+                  "min_accepted_gpus": null,
+                  "max_accepted_cores": 8,
+                  "max_accepted_mem": 32,
+                  "max_accepted_gpus": null,
+                  "env": null,
+                  "params": null,
+                  "resubmit": null,
+                  "scheduling": {
+                      "require": [
+                          "pulsar"
+                      ],
+                      "prefer": [],
+                      "accept": [
+                          "general"
+                      ],
+                      "reject": []
+                  },
+                  "inherits": null,
                   "latitude": 50.0689816,
-                  "longitude": 19.9070188 },
-               "rules": {},
-               "tags": null,
-               "queued_job_count": 10,
-               "tool_id": "api_test",
-               "job_count_in_time_window": 30,
-               "galaxy_db_query_time": "2024-04-18T14:20:00Z",
-               "median_queue_time": 1,
-               "median_run_time": 8,
-               "completed_count": 0,
-               "suspended_count": 0,
-               "held_count": 4,
-               "removed_count": 0,
-               "running_count": 0,
-               "idle_count": 0,
-               "cpu_usage_perc": 0,
-               "mem_usage_perc": 0,
-            },
-            {
-               "id": "slurm_poland",
-               "abstract": false,
-               "runner": "slurm",
-               "destination_name_override": "slurm_poland",
-               "cores": null,
-               "mem": null,
-               "gpus": null,
-               "min_cores": null,
-               "min_mem": null,
-               "min_gpus": null,
-               "max_cores": null,
-               "max_mem": null,
-               "max_gpus": null,
-               "min_accepted_cores": null,
-               "min_accepted_mem": null,
-               "min_accepted_gpus": null,
-               "max_accepted_cores": 16,
-               "max_accepted_mem": 64,
-               "max_accepted_gpus": null,
-               "env": null,
-               "params": null,
-               "resubmit": null,
-               "scheduling": {
-               "require": [],
-               "prefer": [],
-               "accept": ["slurm"],
-               "reject": []
-               },
-               "inherits": null,
-               "context": {
+                  "longitude": 19.9070188,
+                  "rules": {},
+                  "tags": null,
+                  "running_job_count": 1,
+                  "queued_job_count": 10,
+                  "tool_id": "api_test",
+                  "job_count_in_time_window": 30,
+                  "galaxy_db_query_time": "2024-04-18T14:20:00Z",
+                  "median_queue_time": 1,
+                  "median_run_time": 8,
+                  "completed_count": 0,
+                  "suspended_count": 0,
+                  "held_count": 4,
+                  "removed_count": 0,
+                  "running_count": 0,
+                  "idle_count": 0,
+                  "cpu_usage_perc": 0,
+                  "mem_usage_perc": 0
+              },
+              {
+                  "id": "slurm_poland",
+                  "abstract": false,
+                  "runner": "slurm",
+                  "destination_name_override": "slurm_poland",
+                  "cores": null,
+                  "mem": null,
+                  "gpus": null,
+                  "min_cores": null,
+                  "min_mem": null,
+                  "min_gpus": null,
+                  "max_cores": null,
+                  "max_mem": null,
+                  "max_gpus": null,
+                  "min_accepted_cores": null,
+                  "min_accepted_mem": null,
+                  "min_accepted_gpus": null,
+                  "max_accepted_cores": 16,
+                  "max_accepted_mem": 64,
+                  "max_accepted_gpus": null,
+                  "env": null,
+                  "params": null,
+                  "resubmit": null,
+                  "scheduling": {
+                      "require": [],
+                      "prefer": [],
+                      "accept": [
+                          "slurm"
+                      ],
+                      "reject": []
+                  },
+                  "inherits": null,
                   "latitude": 51.9189046,
-                  "longitude": 19.1343786 },
-               "rules": {},
-               "tags": null,
-               "queued_job_count": 8,
-               "tool_id": "api_test",
-               "job_count_in_time_window": 30,
-               "galaxy_db_query_time": "2024-04-18T14:20:00Z",
-               "median_queue_time": 1,
-               "median_run_time": 8,
-               "completed_count": 0,
-               "suspended_count": 0,
-               "held_count": 4,
-               "removed_count": 0,
-               "running_count": 0,
-               "idle_count": 0,
-               "cpu_usage_perc": 0,
-               "mem_usage_perc": 0,
-            }
-         ],
-         "objectstores": {
-            "object_store_italy_S3_01": {
-               "latitude": 50.0689816,
-               "longitude": 19.9070188,
-               "other_stuff_that_we_find_useful": "foobar"
-            },
-            "object_store_poland": {
-               "latitude": 51.9189046,
-               "longitude": 19.1343786,
-               "other_stuff_that_we_find_useful": "foobar"
-            }
-         },
-         "dataset_attributes": {
-            "dataset_italy": {
-               "object_store_id": "object_store_italy_S3_01",
-               "size": 12345678
-            },
-            "dataset_poland": {
-               "object_store_id": "object_store_poland",
-               "size": 123456789
-            }
-         }
+                  "longitude": 19.1343786,
+                  "rules": {},
+                  "tags": null,
+                  "running_job_count": 1,
+                  "queued_job_count": 8,
+                  "tool_id": "api_test",
+                  "job_count_in_time_window": 30,
+                  "galaxy_db_query_time": "2024-04-18T14:20:00Z",
+                  "median_queue_time": 1,
+                  "median_run_time": 8,
+                  "completed_count": 0,
+                  "suspended_count": 0,
+                  "held_count": 4,
+                  "removed_count": 0,
+                  "running_count": 0,
+                  "idle_count": 0,
+                  "cpu_usage_perc": 0,
+                  "mem_usage_perc": 0
+              }
+          ],
+          "static_objectstores_info": {
+              "object_store_italy_S3_01": {
+                  "latitude": 50.0689816,
+                  "longitude": 19.9070188,
+                  "other_stuff_that_we_find_useful": "foobar"
+              },
+              "object_store_poland": {
+                  "latitude": 51.9189046,
+                  "longitude": 19.1343786,
+                  "other_stuff_that_we_find_useful": "foobar"
+              }
+          },
+          "static_dataset_info": {
+              "01": {
+                  "object_store_id": "object_store_italy_S3_01",
+                  "size": 12345678
+              },
+              "02": {
+                  "object_store_id": "object_store_poland",
+                  "size": 123456789
+              }
+          }
       }
       ```
 
