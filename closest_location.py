@@ -20,47 +20,89 @@ def get_object_store(dataset_attributes):
     return object_store
 
 
-def closest_destinations(destinations, objectstores, dataset_attributes):
-    """Calculate the closest destination for each object store and return
-    the list of destinations sorted by distance"""
+def closest_destination(destination, objectstores, dataset_attributes) -> float:
+    """
+    Calculates the minimum distance between a given destination and the object store(s).
+    """
     object_store = get_object_store(dataset_attributes)
 
-    if len(object_store) == 0:
-        # Return all destination IDs if no object store is in the dataset
-        return [destination.id for destination in destinations]
-    elif len(object_store) == 1:
-        # Calculate the minimum distance for each destination
-        objectstore = objectstores[object_store[0]]
-        out_destinations = []
+    # If there is no object store, return infinity
+    if not object_store:
+        return float('inf')
 
-        for destination in destinations:
-            d_lat, d_lon = destination.latitude, destination.longitude
-            o_lat, o_lon = objectstore.latitude, objectstore.longitude
-            queue_size = destination.queued_job_count
-            out_dest = {"id": destination.id, "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
-            out_destinations.append(out_dest)
+    d_lat, d_lon = destination.latitude, destination.longitude
+    min_distance = float('inf')
 
-        # In this simple logic: give equal sorting weight to both the distance and the queue size 
-        sorted_destinations = sorted(out_destinations, key=lambda d: (d['distance'], d['queue']))       
-        sorted_destinations = [k["id"] for k in sorted_destinations]
+    # Calculate distance to each object store and keep the minimum
+    for object_store_id in object_store:
+        object_store_info = objectstores.get(object_store_id)
+        if object_store_info:
+            o_lat, o_lon = object_store_info.latitude, object_store_info.longitude
+            min_distance = min(min_distance, distance(o_lat, o_lon, d_lat, d_lon))
 
-        return sorted_destinations
+    return min_distance
+
+
+def calculate_matching_score(destination: dict) -> float:
+    """
+    Calculate the matching score between a job and a destination
+    """
+    median_waiting_time = destination.get('dest_tool_median_queue_time', None)
+    queue_size = destination.get('dest_queue_count', 1)
+    median_running_time = destination.get('dest_tool_median_run_time', None)
+    running_jobs = destination.get('dest_run_count', 1)
+
+    # Queue matching factor (qm).
+    if median_waiting_time > 0 and queue_size > 0:
+        qm = 1 / (median_waiting_time * queue_size)
     else:
-        # Calculate the minimum distance for each destination and for each objectstore
-        out_destinations = []
+        qm = float('inf')
 
-        for _, store_info in objectstores.items():
-            o_lat, o_lon = store_info.latitude, store_info.longitude
+    # Compute matching factor (cm).
+    if median_running_time > 0 and running_jobs > 0:
+        cm = 1 / (median_running_time * running_jobs)
+    else:
+        cm = float('inf')
 
-            for destination in destinations:
-                d_lat, d_lon = destination.latitude, destination.longitude
-                queue_size = destination.queued_job_count
-                out_dest = {"id": destination.id, "distance": distance(o_lat, o_lon, d_lat, d_lon), "queue": queue_size}
-                out_destinations.append(out_dest)
+    # Final matching score
+    return qm + cm
 
-        # In this simple logic: give equal sorting weight to both the distance and the queue size 
-        sorted_destinations = sorted(out_destinations, key=lambda d: (d['distance'], d['queue']))
 
-        sorted_destinations = [k["id"] for k in sorted_destinations]
+def get_sorted_destinations(job_requirements: dict, destinations: list, objectstores: dict, dataset_attributes: dict) -> list:
+    """
+    Sorts the destinations based on the matching score and distance to the input data location.
+    """
+    sorted_destinations = []
+    cpu_required = job_requirements['cpu_cores']
+    memory_required = job_requirements['memory']
 
-        return sorted_destinations
+    # Filter out destinations that can't meet basic requirements based on the "real-time" data
+    viable_destinations = []
+    for dest in destinations:
+        # Check if the destination_status is 'online'
+        if dest['dest_status'] == 'online':
+            # Check if the destination has enough resources
+            if dest['dest_unconsumed_cpu'] > cpu_required and dest['dest_unconsumed_mem'] > memory_required:
+                # Calculate the distance to the input data location
+                dest['distance_to_data'] = closest_destination(dest, objectstores, dataset_attributes)
+                viable_destinations.append(dest)
+
+    # Fallback case if no viable destinations are found (e.g. no destination has enough resources)
+    if not viable_destinations:
+        for dest in destinations:
+            dest['distance_to_data'] = closest_destination(dest, objectstores, dataset_attributes)
+        sorted_destinations = sorted(destinations, key=lambda x: x['distance_to_data'])
+        return [dest['destination_id'] for dest in sorted_destinations]
+
+    # Sort by distance to input data location (ascending)
+    viable_destinations.sort(key=lambda x: x['distance_to_data'])
+
+    # Calculate matching scores for each viable destination
+    for dest in viable_destinations:
+        dest['matching_score'] = calculate_matching_score(dest)
+
+    # Sort by matching score (descending)
+    viable_destinations.sort(key=lambda x: x['matching_score'], reverse=True)
+
+    sorted_destinations = [dest['destination_id'] for dest in viable_destinations]
+    return sorted_destinations

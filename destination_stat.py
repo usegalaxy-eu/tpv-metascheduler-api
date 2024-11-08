@@ -40,6 +40,7 @@ def query_construction(destination, tool_id):
     queries['dest_tool_median_run_time_query'] = f"SELECT last(\"median_run\") FROM \"destination-queue-run-time\" WHERE \"tool_id\"='{tool_id}' AND \"destination_id\"='{destination}'"
     queries['dest_unconsumed_cpu_query'] = f"SELECT last(\"unclaimed_cpus\") FROM \"htcondor_cluster_usage\" WHERE \"destination_id\"='{destination}'"
     queries['dest_unconsumed_mem_query'] = f"SELECT last(\"unclaimed_memory\") FROM \"htcondor_cluster_usage\" WHERE \"destination_id\"='{destination}'"
+    queries['dest_status'] = f"SELECT last(\"destination_status\") FROM \"htcondor_cluster_usage\" WHERE \"destination_id\"='{destination}'"
 
     return queries
 
@@ -68,6 +69,9 @@ def destination_statistics(influx_client, static_data):
         metrics["dest_tool_median_run_time"] = get_influx_results(influx_client, queries['dest_tool_median_run_time_query']) or ""
         metrics["dest_unconsumed_cpu"] = get_influx_results(influx_client, queries['dest_unconsumed_cpu_query']) or ""
         metrics["dest_unconsumed_mem"] = get_influx_results(influx_client, queries['dest_unconsumed_mem_query']) or ""
+        metrics["dest_status"] = get_influx_results(influx_client, queries['dest_status']) or ""
+        metrics["latitude"] = dest.latitude
+        metrics["longitude"] = dest.longitude
 
         destination_metrics.append(metrics)
 

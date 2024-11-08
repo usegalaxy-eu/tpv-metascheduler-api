@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Dict
-from closest_location import closest_destinations
+from closest_location import get_sorted_destinations
 from destination_stat import destination_statistics
 from influxdb import InfluxDBClient
 
@@ -141,17 +141,17 @@ def influx_client():
 
 @app.post("/process_data", response_model=ProcessedResult)
 async def process_data(data: RequestModel):
+    client = influx_client()
+    destination_metrics = destination_statistics(client, data)
 
-    sorted_destinations = closest_destinations(
-        data.current_dest_info,
+    sorted_destinations = get_sorted_destinations(
+        data.static_job_info,
+        destination_metrics,
         data.static_objectstores_info,
         data.static_dataset_info
         )
     print(sorted_destinations)
-    client = influx_client()
-    destination_metrics = destination_statistics(client, data)
 
     return {
         "sorted_destinations": sorted_destinations
     }
-
