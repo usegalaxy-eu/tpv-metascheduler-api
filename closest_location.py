@@ -30,7 +30,7 @@ def closest_destination(destination, objectstores, dataset_attributes) -> float:
     if not object_store:
         return float('inf')
 
-    d_lat, d_lon = destination.latitude, destination.longitude
+    d_lat, d_lon = destination['latitude'], destination['longitude']
     min_distance = float('inf')
 
     # Calculate distance to each object store and keep the minimum
@@ -68,13 +68,13 @@ def calculate_matching_score(destination: dict) -> float:
     return qm + cm
 
 
-def get_sorted_destinations(job_requirements: dict, destinations: list, objectstores: dict, dataset_attributes: dict) -> list:
+def get_sorted_destinations(job_requirements, destinations: list, objectstores, dataset_attributes) -> list:
     """
     Sorts the destinations based on the matching score and distance to the input data location.
     """
     sorted_destinations = []
-    cpu_required = job_requirements['cpu_cores']
-    memory_required = job_requirements['memory']
+    cpu_required = job_requirements.cores
+    memory_required = job_requirements.mem
 
     # Filter out destinations that can't meet basic requirements based on the "real-time" data
     viable_destinations = []
@@ -97,6 +97,8 @@ def get_sorted_destinations(job_requirements: dict, destinations: list, objectst
     # Sort by distance to input data location (ascending)
     viable_destinations.sort(key=lambda x: x['distance_to_data'])
 
+    print("viable dest: ", viable_destinations)
+
     # Calculate matching scores for each viable destination
     for dest in viable_destinations:
         dest['matching_score'] = calculate_matching_score(dest)
@@ -105,4 +107,5 @@ def get_sorted_destinations(job_requirements: dict, destinations: list, objectst
     viable_destinations.sort(key=lambda x: x['matching_score'], reverse=True)
 
     sorted_destinations = [dest['destination_id'] for dest in viable_destinations]
+    print("sorted dest: ", sorted_destinations)
     return sorted_destinations

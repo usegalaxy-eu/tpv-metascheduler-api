@@ -72,22 +72,22 @@ class DestinationInfo(BaseModel):
 
 
 class RequestModel(BaseModel):
-    static_objectstores_info: Dict[str, ObjectStoreInfo]
-    static_dataset_info: Dict[int, DatasetInfo]
-    static_job_info: JobInfo
-    current_dest_info: List[DestinationInfo]
+    objectstores: Dict[str, ObjectStoreInfo]
+    datasets: Dict[int, DatasetInfo]
+    job_info: JobInfo
+    destinations: List[DestinationInfo]
 
     class Config:
         schema_extra = {
             "example": {
-                "static_objectstores_info": {
+                "objectstores": {
                     "object_store_australia": {"latitude": -26.4390917, "longitude": 133.281323}
                 },
-                "static_dataset_info": {
+                "datasets": {
                     "0": {"object_store_id": "object_store_australia", "size": 1073741824000.0}
                 },
-                "static_job_info": {"tool_id": "trinity", "mem": 8, "cores": 2, "gpus": 0},
-                "current_dest_info": [
+                "job_info": {"tool_id": "trinity", "mem": 8, "cores": 2, "gpus": 0},
+                "destinations": [
                     {
                         "id": "slurm_germany",
                         "latitude": 51.1642292,
@@ -145,10 +145,10 @@ async def process_data(data: RequestModel):
     destination_metrics = destination_statistics(client, data)
 
     sorted_destinations = get_sorted_destinations(
-        data.static_job_info,
+        data.job_info,
         destination_metrics,
-        data.static_objectstores_info,
-        data.static_dataset_info
+        data.objectstores,
+        data.datasets
         )
     print(sorted_destinations)
 

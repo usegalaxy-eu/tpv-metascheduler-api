@@ -46,29 +46,35 @@ def query_construction(destination, tool_id):
 
 
 def get_influx_results(influx_client, query: str):
+    print("TEST0")
+    print(query)
     results = list(influx_client.query(query).get_points())
+    print("TEST")
     if results:
+        # if results[0]["last"].isdigit():
+        #     return float(results[0]["last"])
+        # else:
         return results[0]["last"]
 
 
 def destination_statistics(influx_client, static_data):
 
     destination_metrics = []
-    tool_id = static_data.static_job_info.tool_id
+    tool_id = static_data.job_info.tool_id
     print(tool_id)
-    for dest in static_data.current_dest_info:
+    for dest in static_data.destinations:
         destination = dest.id
         print(destination)
         queries = query_construction(destination, tool_id)
 
         metrics = {}
         metrics["destination_id"] = destination
-        metrics["dest_queue_count"] = get_influx_results(influx_client, queries['dest_queue_count_query']) or ""
-        metrics["dest_run_count"] = get_influx_results(influx_client, queries['dest_run_count_query']) or ""
-        metrics["dest_tool_median_queue_time"] = get_influx_results(influx_client, queries['dest_tool_median_queue_time_query']) or ""
-        metrics["dest_tool_median_run_time"] = get_influx_results(influx_client, queries['dest_tool_median_run_time_query']) or ""
-        metrics["dest_unconsumed_cpu"] = get_influx_results(influx_client, queries['dest_unconsumed_cpu_query']) or ""
-        metrics["dest_unconsumed_mem"] = get_influx_results(influx_client, queries['dest_unconsumed_mem_query']) or ""
+        metrics["dest_queue_count"] = get_influx_results(influx_client, queries['dest_queue_count_query']) or 0
+        metrics["dest_run_count"] = get_influx_results(influx_client, queries['dest_run_count_query']) or 0
+        metrics["dest_tool_median_queue_time"] = get_influx_results(influx_client, queries['dest_tool_median_queue_time_query']) or 0
+        metrics["dest_tool_median_run_time"] = get_influx_results(influx_client, queries['dest_tool_median_run_time_query']) or 0
+        metrics["dest_unconsumed_cpu"] = get_influx_results(influx_client, queries['dest_unconsumed_cpu_query']) or 0
+        metrics["dest_unconsumed_mem"] = get_influx_results(influx_client, queries['dest_unconsumed_mem_query']) or 0
         metrics["dest_status"] = get_influx_results(influx_client, queries['dest_status']) or ""
         metrics["latitude"] = dest.latitude
         metrics["longitude"] = dest.longitude
