@@ -76,21 +76,19 @@ def get_sorted_destinations(job_requirements, destinations: list, objectstores, 
     cpu_required = job_requirements.cores
     memory_required = job_requirements.mem
 
-    # Filter out destinations that can't meet basic requirements based on the "real-time" data
-    viable_destinations = []
+    # Calculate the distance to the input data location for all destinations
     for dest in destinations:
-        # Check if the destination_status is 'online'
-        if dest['dest_status'] == 'online':
-            # Check if the destination has enough resources
-            if dest['dest_unconsumed_cpu'] > cpu_required and dest['dest_unconsumed_mem'] > memory_required:
-                # Calculate the distance to the input data location
-                dest['distance_to_data'] = closest_destination(dest, objectstores, dataset_attributes)
-                viable_destinations.append(dest)
+        dest['distance_to_data'] = closest_destination(dest, objectstores, dataset_attributes)
+
+    # Filter out destinations that can't meet basic requirements based on the "real-time" data
+    viable_destinations = [
+        dest for dest in destinations if dest['dest_status'] == 'online'
+        and dest['dest_unconsumed_cpu'] > cpu_required
+        and dest['dest_unconsumed_mem'] > memory_required
+    ]
 
     # Fallback case if no viable destinations are found (e.g. no destination has enough resources)
     if not viable_destinations:
-        for dest in destinations:
-            dest['distance_to_data'] = closest_destination(dest, objectstores, dataset_attributes)
         sorted_destinations = sorted(destinations, key=lambda x: x['distance_to_data'])
         return [dest['destination_id'] for dest in sorted_destinations]
 
