@@ -1,2 +1,4 @@
 fastapi[all]
 influxdb
+pytest
+python-dotenv
