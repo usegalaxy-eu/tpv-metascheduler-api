@@ -2,6 +2,23 @@
 
 Metascheduler for TPV as Service
 
+The TPV Metascheduler is an API that plugs in to [TPV](https://total-perspective-vortex.readthedocs.io/en/latest/)s' [rank](https://total-perspective-vortex.readthedocs.io/en/latest/topics/concepts.html#rank) function: 
+> After the matching destinations are short listed, they are ranked using a pluggable rank function. The default rank function simply sorts the destinations by tags that have the most number of preferred tags, with a penalty if preferred tags are absent. However, this default rank function can be overridden per entity, allowing a custom rank function to be defined in python code, with arbitrary logic for picking the best match from the available candidate destinations.
+
+The API takes the list of `candidate_destinations`, i.e., destinations registered in TPV (with hardcoded resource usage limits, such as the max memory allowed for a job) which can in theory statify the job requirements, eg:
+```
+destinations:
+  slurm:
+    runner: slurm
+    max_accepted_cores: 32
+    max_accepted_mem: 196
+    max_accepted_gpus: 2
+    max_cores: 16
+    max_mem: 64
+    max_gpus: 1
+```
+The api then ranks these destinations based on the metrics available about each of them in a deticated InfluxDB. is to allow efficiently schedule jobs from any UseGalaxy.* server to any Pulsar endpoint in the Pulsar network or a user-defined compute endpoint
+
 1. Create a venv
 
    ```python
@@ -21,146 +38,16 @@ Metascheduler for TPV as Service
 
 3. Testing the API with input data:
 
-   1. SwaggerUI: <http://127.0.0.1:8000/docs>
+   1. Run some of the pytests in `tests`
+   2. SwaggerUI: <http://127.0.0.1:8000/docs>
 
-      Try out >  Fill out the request body:
+      Try out >  Fill out the request body using some of the test data, e.g.: `tests/example_request1.json`
 
-      Request body:
-
-      ```json
-      {
-         "destinations": [
-            {
-               "id": "pulsar_italy",
-               "abstract": false,
-               "runner": "general_pulsar_1",
-               "destination_name_override": "pulsar_italy",
-               "cores": null,
-               "mem": null,
-               "gpus": null,
-               "min_cores": null,
-               "min_mem": null,
-               "min_gpus": null,
-               "max_cores": null,
-               "max_mem": null,
-               "max_gpus": null,
-               "min_accepted_cores": null,
-               "min_accepted_mem": null,
-               "min_accepted_gpus": null,
-               "max_accepted_cores": 8,
-               "max_accepted_mem": 32,
-               "max_accepted_gpus": null,
-               "env": null,
-               "params": null,
-               "resubmit": null,
-               "scheduling": {
-               "require": ["pulsar"],
-               "prefer": [],
-               "accept": ["general"],
-               "reject": []
-               },
-               "inherits": null,
-               "context": {
-                  "latitude": 50.0689816,
-                  "longitude": 19.9070188 },
-               "rules": {},
-               "tags": null,
-               "queued_job_count": 10,
-               "tool_id": "api_test",
-               "job_count_in_time_window": 30,
-               "galaxy_db_query_time": "2024-04-18T14:20:00Z",
-               "median_queue_time": 1,
-               "median_run_time": 8,
-               "completed_count": 0,
-               "suspended_count": 0,
-               "held_count": 4,
-               "removed_count": 0,
-               "running_count": 0,
-               "idle_count": 0,
-               "cpu_usage_perc": 0,
-               "mem_usage_perc": 0,
-            },
-            {
-               "id": "slurm_poland",
-               "abstract": false,
-               "runner": "slurm",
-               "destination_name_override": "slurm_poland",
-               "cores": null,
-               "mem": null,
-               "gpus": null,
-               "min_cores": null,
-               "min_mem": null,
-               "min_gpus": null,
-               "max_cores": null,
-               "max_mem": null,
-               "max_gpus": null,
-               "min_accepted_cores": null,
-               "min_accepted_mem": null,
-               "min_accepted_gpus": null,
-               "max_accepted_cores": 16,
-               "max_accepted_mem": 64,
-               "max_accepted_gpus": null,
-               "env": null,
-               "params": null,
-               "resubmit": null,
-               "scheduling": {
-               "require": [],
-               "prefer": [],
-               "accept": ["slurm"],
-               "reject": []
-               },
-               "inherits": null,
-               "context": {
-                  "latitude": 51.9189046,
-                  "longitude": 19.1343786 },
-               "rules": {},
-               "tags": null,
-               "queued_job_count": 8,
-               "tool_id": "api_test",
-               "job_count_in_time_window": 30,
-               "galaxy_db_query_time": "2024-04-18T14:20:00Z",
-               "median_queue_time": 1,
-               "median_run_time": 8,
-               "completed_count": 0,
-               "suspended_count": 0,
-               "held_count": 4,
-               "removed_count": 0,
-               "running_count": 0,
-               "idle_count": 0,
-               "cpu_usage_perc": 0,
-               "mem_usage_perc": 0,
-            }
-         ],
-         "objectstores": {
-            "object_store_italy_S3_01": {
-               "latitude": 50.0689816,
-               "longitude": 19.9070188,
-               "other_stuff_that_we_find_useful": "foobar"
-            },
-            "object_store_poland": {
-               "latitude": 51.9189046,
-               "longitude": 19.1343786,
-               "other_stuff_that_we_find_useful": "foobar"
-            }
-         },
-         "dataset_attributes": {
-            "dataset_italy": {
-               "object_store_id": "object_store_italy_S3_01",
-               "size": 12345678
-            },
-            "dataset_poland": {
-               "object_store_id": "object_store_poland",
-               "size": 123456789
-            }
-         }
-      }
-      ```
-
-   2. curl
+   3. curl
 
       The Swagger UI can give you a curl version of your request after executing
 
-   3. Using a python script with the requests or httpx library
+   4. Using a python script with the requests or httpx library
 
       There is an example of how to do this with TPV:
       [example_tpv_config_locations_api.yml](./example_tpv_config_locations_api.yml).
