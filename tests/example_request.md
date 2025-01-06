@@ -1,6 +1,7 @@
 Available test data inserted on 2025-01-06T10:59:23
 
-> select * from "destination-queue-run-time"
+`select * from "destination-queue-run-time"`
+
 name: destination-queue-run-time
 | time | avg_queue | avg_run | count | destination_id | max_queue | max_run | median_queue | median_run | min_queue | min_run | perc_95_queue | perc_95_run | perc_99_queue | perc_99_run | tool_id |
 | ---- | --------- | ------- | ----- | -------------- | --------- | ------- | ------------ | ---------- | --------- | ------- | ------------- | ----------- | ------------- | ----------- | ------- |
@@ -18,7 +19,8 @@ name: destination-queue-run-time
 | 2025-01-06T10:59:23.511607684Z | 8 | 3600 | 7 | pulsar_sk01_tpv | 20 | 15000 | 7 | 3000 | 3 | 300 | 12 | 10000 | 15 | 12000 | blast |
 | 2025-01-06T10:59:23.534286394Z | 15.5 | 5400 | 15 | pulsar_uk | 30 | 13000 | 14 | 5000 | 10 | 300 | 20 | 10500 | 25 | 12000 | hisat2 |
 
-> select * from queue_by_destination
+`select * from queue_by_destination`
+
 name: queue_by_destination
 | time | count | destination_id | state |
 | ---- | ----- | -------------- | ----- |
@@ -49,7 +51,8 @@ name: queue_by_destination
 | 2025-01-06T10:55:35.821539921Z | 7 | pulsar_uk | queued |
 | 2025-01-06T10:55:35.844172022Z | 8 | pulsar_uk | running |
 
-> select * from htcondor_cluster_usage
+`select * from htcondor_cluster_usage`
+
 name: htcondor_cluster_usage
 | time | claimed_busy_slots | claimed_cpus | claimed_gpus | claimed_loadavg | claimed_memory | classad | destination_id | destination_status | querytime | total_detected_cpus | total_gpu_slots | total_loadavg | total_memory | total_slots | unclaimed_cpus | unclaimed_gpus | unclaimed_idle_slots | unclaimed_loadavg | unclaimed_memory |
 | ---- | ------------------ | ------------ | ------------ | --------------- | -------------- | ------- | -------------- | ------------------ | --------- | ------------------- | --------------- | ------------- | ------------ | ----------- | -------------- | -------------- | -------------------- | ----------------- | ---------------- |
