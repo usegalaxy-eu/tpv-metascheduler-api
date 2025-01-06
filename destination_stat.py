@@ -32,7 +32,7 @@ def group_and_calculate_medians(data, group_key, value_key):
 def query_construction(destination, tool_id):
 
     queries = {}
-
+    # TODO: for the test cases add a where clause for the date
     queries['dest_queue_count_query'] = f"SELECT last(count) FROM queue_by_destination WHERE \"state\"='running' AND \"destination_id\"='{destination}'"
     queries['dest_run_count_query'] = f"SELECT last(count) FROM queue_by_destination WHERE \"state\"='queued' AND \"destination_id\"='{destination}'"
     # dest_queue_count_query = "SELECT median(count) FROM queue_by_destination GROUP BY \"destination_id\", state ORDER BY time DESC LIMIT 10"
@@ -46,10 +46,9 @@ def query_construction(destination, tool_id):
 
 
 def get_influx_results(influx_client, query: str):
-    print("TEST0")
-    print(query)
+    print("QUERY: ", query)
     results = list(influx_client.query(query).get_points())
-    print("TEST")
+    print("RESULTS: ", results)
     if results:
         # if results[0]["last"].isdigit():
         #     return float(results[0]["last"])
@@ -61,10 +60,8 @@ def destination_statistics(influx_client, static_data):
 
     destination_metrics = []
     tool_id = static_data.job_info.tool_id
-    print(tool_id)
     for dest in static_data.destinations:
         destination = dest.id
-        print(destination)
         queries = query_construction(destination, tool_id)
 
         metrics = {}
