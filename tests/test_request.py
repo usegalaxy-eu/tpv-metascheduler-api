@@ -1,6 +1,5 @@
 import pytest
 import json
-import os
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from main import app  # Import your FastAPI app
