@@ -37,7 +37,7 @@ class DatasetInfo(BaseModel):
 
 class JobInfo(BaseModel):
     tool_id: str
-    mem: int
+    mem: float
     cores: int
     gpus: int
 
