@@ -56,8 +56,8 @@ class DestinationInfo(BaseModel):
     id: str
     latitude: float
     longitude: float
-    queued_job_count: int
-    running_job_count: int
+    # queued_job_count: int
+    # running_job_count: int
 
     class Config:
         schema_extra = {
@@ -65,8 +65,8 @@ class DestinationInfo(BaseModel):
                 "id": "pulsar_italy",
                 "latitude": 50.0689816,
                 "longitude": 19.9070188,
-                "queued_job_count": 5,
-                "running_job_count": 5
+                # "queued_job_count": 5,
+                # "running_job_count": 5
             }
         }
 
@@ -92,22 +92,22 @@ class RequestModel(BaseModel):
                         "id": "slurm_germany",
                         "latitude": 51.1642292,
                         "longitude": 10.4541192,
-                        "queued_job_count": 5,
-                        "running_job_count": 5
+                        # "queued_job_count": 5,
+                        # "running_job_count": 5
                     },
                     {
                         "id": "condor_france",
                         "latitude": 46.71109,
                         "longitude": 1.7191036,
-                        "queued_job_count": 5,
-                        "running_job_count": 5
+                        # "queued_job_count": 5,
+                        # "running_job_count": 5
                     },
                     {
                         "id": "pulsar_australia",
                         "latitude": -26.4390917,
                         "longitude": 133.281323,
-                        "queued_job_count": 5,
-                        "running_job_count": 5
+                        # "queued_job_count": 5,
+                        # "running_job_count": 5
                     }
                 ]
             }
